@@ -8,7 +8,8 @@ interface SessionStore {
   server: string | undefined
   username: string | undefined
   password: string | undefined
-  authenticated: boolean
+  accessToken: string | undefined
+  isAuthenticated(): boolean
   authenticate: (server: string, username: string, password: string) => Promise<void>
   logout: () => Promise<void>
   api: () => Api | undefined
@@ -20,29 +21,29 @@ export const useSessionStore = create<SessionStore>()(
       server: undefined,
       username: undefined,
       password: undefined,
-      authenticated: false,
-
+      accessToken: undefined,
+      isAuthenticated: () => !!get().accessToken,
       authenticate: async (server, username, password) => {
         const api = jellyfin.createApi(server)
         const result = await api.authenticateUserByName(username, password)
         if (result.status >= 300) {
           throw new Error('Authentication failed')
         }
-        set({ server, username, password, authenticated: true })
+        set({ server: server, accessToken: result.data.AccessToken! })
       },
 
       logout: async () => {
-        set({ server: undefined, username: undefined, password: undefined, authenticated: false })
+        set({ accessToken: undefined })
       },
 
       api: () => {
-        const { server } = get()
-        if (!server) return undefined
-        return jellyfin.createApi(server)
+        const { server, accessToken } = get()
+        if (!server || !accessToken) return undefined
+        return jellyfin.createApi(server, accessToken)
       },
     }),
     {
-      name: 'jellyfin-session',
+      name: 'session',
       storage: createJSONStorage(() => ({
         getItem: (name) => storage.getString(name) ?? null,
         setItem: (name, value) => storage.set(name, value),
