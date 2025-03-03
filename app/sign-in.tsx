@@ -14,19 +14,26 @@ import {
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons'
-import { useSession } from '@/lib/context'
 import { useRouter } from 'expo-router'
+import { useSessionStore } from '@/lib/context'
 
 export default function SignInScreen() {
   const router = useRouter()
-  const session = useSession()
+  const session = useSessionStore()
+  const [server, setServer] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isServerFocused, setIsServerFocused] = useState(false)
   const [isUsernameFocused, setIsUsernameFocused] = useState(false)
   const [isPasswordFocused, setIsPasswordFocused] = useState(false)
 
   const handleSignIn = () => {
+    if (!server.trim()) {
+      Alert.alert('Error', 'Please enter your server address')
+      return
+    }
+
     if (!username.trim()) {
       Alert.alert('Error', 'Please enter your username')
       return
@@ -37,8 +44,14 @@ export default function SignInScreen() {
       return
     }
 
-    session.setAuthenticated(true)
-    router.push('/')
+    session
+      .authenticate(server, username, password)
+      .then(() => {
+        router.push('/')
+      })
+      .catch((error) => {
+        Alert.alert('Error', error.message)
+      })
   }
 
   const togglePasswordVisibility = () => {
@@ -64,6 +77,31 @@ export default function SignInScreen() {
 
         <View style={styles.formContainer}>
           <Text style={styles.title}>Sign In</Text>
+
+          <View
+            style={[
+              styles.inputContainer,
+              isServerFocused && styles.inputContainerFocused,
+            ]}
+          >
+            <Ionicons
+              name='server-outline'
+              size={20}
+              color='#666'
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder='e.g., https://jellyfin.example.com'
+              value={server}
+              onChangeText={setServer}
+              autoCapitalize='none'
+              keyboardType='url'
+              autoCorrect={false}
+              onFocus={() => setIsServerFocused(true)}
+              onBlur={() => setIsServerFocused(false)}
+            />
+          </View>
 
           <View
             style={[

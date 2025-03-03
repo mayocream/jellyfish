@@ -1,12 +1,14 @@
-import { useSession } from '@/lib/context'
+import { useSessionStore } from '@/lib/context'
 import { Redirect } from 'expo-router'
 import { Text, View } from 'react-native'
 
 export default function Index() {
-  const session = useSession()
+  const session = useSessionStore()
   if (!session.authenticated) {
     return <Redirect href='/sign-in' />
   }
+
+  const api = session.api()
 
   return (
     <View
@@ -16,7 +18,7 @@ export default function Index() {
         alignItems: 'center',
       }}
     >
-      <Text>Hello</Text>
+      <Text>{api?.deviceInfo.name}</Text>
     </View>
   )
 }
