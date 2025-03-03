@@ -16,8 +16,9 @@ const CARD_MARGIN = 10;
 
 interface CardItem {
   id: string;
-  imageUrl: string;
+  imageUrl?: string;
   title?: string;
+  subtitle?: string
   progress: number;
 }
 
@@ -63,6 +64,7 @@ const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({
           >
             <View style={styles.cardContent}>
               {card.title && <Text style={styles.cardTitle}>{card.title}</Text>}
+              {card.subtitle && <Text style={styles.cardSubTitle}>{card.subtitle}</Text>}
             </View>
             <View style={styles.toolbar}>
               <View style={styles.progressBarContainer}>
@@ -112,6 +114,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  cardSubTitle: {
+    color: '#AAAAAA',
     fontSize: 18,
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
