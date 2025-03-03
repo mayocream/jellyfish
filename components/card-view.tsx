@@ -37,9 +37,9 @@ interface HorizontalCardScrollerProps {
  * @param {Function} onCardPress - Function to call when a card is pressed
  * @returns {JSX.Element}
  */
-const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({ 
-  cards = [], 
-  onCardPress = () => {} 
+const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({
+  cards = [],
+  onCardPress = () => { }
 }) => {
   return (
     <ScrollView
@@ -68,11 +68,11 @@ const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({
             </View>
             <View style={styles.toolbar}>
               <View style={styles.progressBarContainer}>
-                <View 
+                <View
                   style={[
-                    styles.progressBar, 
+                    styles.progressBar,
                     { width: `${card.progress || 0}%` }
-                  ]} 
+                  ]}
                 />
               </View>
               <Text style={styles.progressText}>{`${Math.round(card.progress || 0)}%`}</Text>
