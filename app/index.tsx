@@ -2,15 +2,17 @@ import { useSessionStore } from '@/lib/context'
 import { Redirect } from 'expo-router'
 import { CardItem, HorizontalCardScroller } from '@/components/card-view'
 import { FlixLabel } from '@/components/flix-label'
-import { getItemsApi, getTvShowsApi, getVideosApi } from '@jellyfin/sdk/lib/utils/api'
+import {
+  getItemsApi,
+  getTvShowsApi,
+  getVideosApi,
+} from '@jellyfin/sdk/lib/utils/api'
 import { useState, useEffect } from 'react'
-import { View, useWindowDimensions, StyleSheet } from 'react-native'
-import { Text, Image } from 'tamagui'
+import { useWindowDimensions } from 'react-native'
+import { Text, Image, View } from 'tamagui'
 import { Settings } from '@tamagui/lucide-icons'
 import { BaseItemDto } from '@jellyfin/sdk/lib/generated-client/models'
 import { TouchableOpacity } from 'react-native'
-
-// import { VideoMpvView } from "react-native-video-mpv";
 
 export default function Index() {
   const session = useSessionStore()
@@ -18,7 +20,6 @@ export default function Index() {
     return <Redirect href='/sign-in' />
   }
 
-  
   const api = session.api()!
   const itemsApi = getItemsApi(api)
   const tvShowsApi = getTvShowsApi(api)
@@ -42,7 +43,13 @@ export default function Index() {
             '/Images/Thumb?fillHeight=512&fillWidth=910&tag=' +
             item.ImageTags?.Primary,
           title: item.SeriesName!,
-          subtitle: "S" + item.ParentIndexNumber + ":E" + item.IndexNumber + " - " + item.Name!,
+          subtitle:
+            'S' +
+            item.ParentIndexNumber +
+            ':E' +
+            item.IndexNumber +
+            ' - ' +
+            item.Name!,
           rating: item.CommunityRating!,
           progress:
             ((item.UserData?.PlaybackPositionTicks || 0) /
@@ -81,7 +88,7 @@ export default function Index() {
         enableImageTypes: ['Primary', 'Backdrop', 'Thumb'],
         imageTypeLimit: 1,
         enableTotalRecordCount: false,
-        mediaTypes: ["Video"],
+        mediaTypes: ['Video'],
       })
       const newCards = poplulateCards(items.data.Items || [])
       // trigger re-render
@@ -131,43 +138,50 @@ export default function Index() {
   const cardWidthPercent = isLandscape ? 0.3 : 0.6
 
   // Extract server name from server URL
-  const serverName = session.server 
+  const serverName = session.server
     ? new URL(session.server).hostname
     : 'Jellyfin Server'
 
   return (
-    <View style={styles.container}>
+    <View flex={1} backgroundClip='$black3'>
       {/* Static Header Bar */}
-      <View style={styles.header}>
+      <View
+        height={60}
+        backgroundColor='$black5'
+        flexDirection='row'
+        alignItems='center'
+        justifyContent='space-between'
+        paddingHorizontal={16}
+      >
         {/* Left side: Jellyfin logo */}
         <Image
           source={{ uri: '/assets/images/logo.svg' }}
           width={36}
           height={36}
-          resizeMode="contain"
+          resizeMode='contain'
         />
-        
+
         {/* Center: Server name */}
-        <Text style={styles.serverName}>
+        <Text color='white' fontWeight='bold' fontSize={18}>
           {serverName}
         </Text>
-        
+
         {/* Right side: Settings gear */}
         <TouchableOpacity onPress={handleSettingsPress}>
-          <Settings size={24} color="white" />
+          <Settings size={24} color='white' />
         </TouchableOpacity>
       </View>
 
       {/* Scrollable content */}
-      <View style={styles.content}>
-        <FlixLabel text="Continue" />
+      <View flex={1}>
+        <FlixLabel text='Continue' />
         <HorizontalCardScroller
           cards={resumeCards}
           onCardPress={handleCardPress}
           cardWidthPercent={cardWidthPercent}
         />
 
-        <FlixLabel text="Next Up" />
+        <FlixLabel text='Next Up' />
         <HorizontalCardScroller
           cards={nextUpCards}
           onCardPress={handleCardPress}
@@ -178,26 +192,3 @@ export default function Index() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212', // $black3 equivalent
-  },
-  header: {
-    height: 60,
-    backgroundColor: '#1A1A1A', // $black5 equivalent
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  serverName: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  content: {
-    flex: 1,
-  }
-});

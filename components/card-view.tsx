@@ -1,11 +1,16 @@
 import React from 'react'
-import { Dimensions, TouchableOpacity } from 'react-native'
-import { ScrollView, Image, View, Text, XStack, YStack, styled, useWindowDimensions } from 'tamagui'
+import { TouchableOpacity } from 'react-native'
+import {
+  ScrollView,
+  Image,
+  View,
+  Text,
+  XStack,
+  YStack,
+  styled,
+  useWindowDimensions,
+} from 'tamagui'
 
-const { width, height } = useWindowDimensions()
-const isLandscape = width > height
-
-// Types
 interface CardItem {
   id: string
   imageUrl?: string
@@ -84,13 +89,17 @@ const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({
   cardWidthPercent = 0.85,
   hideProgressBar = false,
   cardOrientation = 'horizontal',
-  onCardPress = () => { },
+  onCardPress = () => {},
 }) => {
+  const { width, height } = useWindowDimensions()
+  const isLandscape = width > height
+
   // Calculate card dimensions
-  const cardWidth = cardWidthPercent * (isLandscape ? height: width);
-  const imageHeight = cardOrientation === "horizontal"
-    ? cardWidth * (1 / 1.77)  // Horizontal aspect ratio
-    : cardWidth * 1.2;      // Vertical aspect ratio, adjusted to allow space for text below
+  const cardWidth = cardWidthPercent * (isLandscape ? height : width)
+  const imageHeight =
+    cardOrientation === 'horizontal'
+      ? cardWidth * (1 / 1.77) // Horizontal aspect ratio
+      : cardWidth * 1.2 // Vertical aspect ratio, adjusted to allow space for text below
 
   return (
     <ScrollView
@@ -137,11 +146,7 @@ const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({
             {/* Title and subtitle below the image */}
             <CardContent>
               {card.title && (
-                <Text
-                  color='#000000'
-                  fontSize={16}
-                  fontWeight='bold'
-                >
+                <Text color='#000000' fontSize={16} fontWeight='bold'>
                   {card.title}
                 </Text>
               )}
@@ -153,21 +158,13 @@ const HorizontalCardScroller: React.FC<HorizontalCardScrollerProps> = ({
                   alignItems='center'
                   marginTop={4}
                 >
-                  <Text
-                    color='#666666'
-                    fontSize={12}
-                    flex={1}
-                  >
+                  <Text color='#666666' fontSize={12} flex={1}>
                     {card.subtitle}
                   </Text>
-                  
+
                   {card.rating !== undefined && (
                     <RatingContainer>
-                      <Text
-                        color='#000000'
-                        fontSize={12}
-                        fontWeight='bold'
-                      >
+                      <Text color='#000000' fontSize={12} fontWeight='bold'>
                         {card.rating.toFixed(1)}
                       </Text>
                     </RatingContainer>

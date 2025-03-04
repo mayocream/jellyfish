@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.4",
@@ -52,6 +53,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~18.3.12",
+    "prettier": "^3.5.3",
     "typescript": "^5.3.3"
   },
   "private": true,

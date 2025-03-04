@@ -10,7 +10,11 @@ interface SessionStore {
   password: string | undefined
   accessToken: string | undefined
   isAuthenticated(): boolean
-  authenticate: (server: string, username: string, password: string) => Promise<void>
+  authenticate: (
+    server: string,
+    username: string,
+    password: string,
+  ) => Promise<void>
   logout: () => Promise<void>
   api: () => Api | undefined
 }
@@ -47,8 +51,8 @@ export const useSessionStore = create<SessionStore>()(
       storage: createJSONStorage(() => ({
         getItem: (name) => storage.getString(name) ?? null,
         setItem: (name, value) => storage.set(name, value),
-        removeItem: (name) => storage.delete(name)
+        removeItem: (name) => storage.delete(name),
       })),
-    }
-  )
+    },
+  ),
 )
