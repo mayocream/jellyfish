@@ -160,7 +160,7 @@ export default function Index() {
 
       {/* Scrollable content */}
       <View style={styles.content}>
-        <FlixLabel text="Resume" />
+        <FlixLabel text="Continue" />
         <HorizontalCardScroller
           cards={resumeCards}
           onCardPress={handleCardPress}
