@@ -1,9 +1,9 @@
 import { useSessionStore } from '@/lib/context'
 import { Redirect } from 'expo-router'
-import { View } from 'react-native'
 import { CardItem, HorizontalCardScroller } from '@/components/card-view'
 import { getItemsApi } from '@jellyfin/sdk/lib/utils/api'
 import { useState, useEffect } from 'react'
+import { View } from 'tamagui'
 
 export default function Index() {
   const session = useSessionStore()
@@ -73,11 +73,10 @@ export default function Index() {
 
   return (
     <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
+      flex={1}
+      justifyContent='center'
+      alignItems='center'
+      backgroundColor='$background'
     >
       <HorizontalCardScroller cards={myCards} onCardPress={handleCardPress} />
     </View>

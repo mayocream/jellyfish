@@ -1,21 +1,10 @@
 import React, { useState } from 'react'
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Alert,
-} from 'react-native'
+import { Alert } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useSessionStore } from '@/lib/context'
+import { YStack, XStack, Text, Input, Button, Image, View } from 'tamagui'
 
 export default function SignInScreen() {
   const router = useRouter()
@@ -59,181 +48,135 @@ export default function SignInScreen() {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <StatusBar style='auto' />
+    <View flex={1} backgroundColor='$background' padding={20}>
+      <StatusBar style='auto' />
 
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../assets/images/logo.png')}
-            style={styles.logo}
-            resizeMode='contain'
+      <YStack alignItems='center' marginTop={60} marginBottom={40}>
+        <Image
+          source={require('../assets/images/logo.png')}
+          width={70}
+          height={70}
+        />
+        <Text fontSize={22} fontWeight='bold' marginTop={10}>
+          Jellyfin
+        </Text>
+      </YStack>
+
+      <YStack flex={1}>
+        <Text fontSize={28} fontWeight='bold' marginBottom={30}>
+          Sign In
+        </Text>
+
+        <XStack
+          alignItems='center'
+          borderWidth={isServerFocused ? 1.5 : 1}
+          borderColor={isServerFocused ? '#4285F4' : '#ddd'}
+          borderRadius={10}
+          paddingHorizontal={15}
+          height={55}
+          marginBottom={15}
+        >
+          <Ionicons
+            name='server-outline'
+            size={20}
+            color='#666'
+            style={{ marginRight: 10 }}
           />
-          <Text style={styles.appName}>Jellyfin</Text>
-        </View>
+          <Input
+            flex={1}
+            height='100%'
+            fontSize={16}
+            borderWidth={0}
+            placeholder='e.g., https://jellyfin.example.com'
+            value={server}
+            onChangeText={setServer}
+            autoCapitalize='none'
+            keyboardType='url'
+            autoCorrect={false}
+            onFocus={() => setIsServerFocused(true)}
+            onBlur={() => setIsServerFocused(false)}
+          />
+        </XStack>
 
-        <View style={styles.formContainer}>
-          <Text style={styles.title}>Sign In</Text>
+        <XStack
+          alignItems='center'
+          borderWidth={isUsernameFocused ? 1.5 : 1}
+          borderColor={isUsernameFocused ? '#4285F4' : '#ddd'}
+          borderRadius={10}
+          paddingHorizontal={15}
+          height={55}
+          marginBottom={15}
+        >
+          <Ionicons
+            name='person-outline'
+            size={20}
+            color='#666'
+            style={{ marginRight: 10 }}
+          />
+          <Input
+            flex={1}
+            height='100%'
+            fontSize={16}
+            borderWidth={0}
+            placeholder='Username'
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize='none'
+            onFocus={() => setIsUsernameFocused(true)}
+            onBlur={() => setIsUsernameFocused(false)}
+          />
+        </XStack>
 
-          <View
-            style={[
-              styles.inputContainer,
-              isServerFocused && styles.inputContainerFocused,
-            ]}
-          >
+        <XStack
+          alignItems='center'
+          borderWidth={isPasswordFocused ? 1.5 : 1}
+          borderColor={isPasswordFocused ? '#4285F4' : '#ddd'}
+          borderRadius={10}
+          paddingHorizontal={15}
+          height={55}
+          marginBottom={15}
+        >
+          <Ionicons
+            name='lock-closed-outline'
+            size={20}
+            color='#666'
+            style={{ marginRight: 10 }}
+          />
+          <Input
+            flex={1}
+            height='100%'
+            fontSize={16}
+            borderWidth={0}
+            placeholder='Password'
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+          />
+          <View padding={5} onPress={togglePasswordVisibility}>
             <Ionicons
-              name='server-outline'
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={20}
               color='#666'
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder='e.g., https://jellyfin.example.com'
-              value={server}
-              onChangeText={setServer}
-              autoCapitalize='none'
-              keyboardType='url'
-              autoCorrect={false}
-              onFocus={() => setIsServerFocused(true)}
-              onBlur={() => setIsServerFocused(false)}
             />
           </View>
+        </XStack>
 
-          <View
-            style={[
-              styles.inputContainer,
-              isUsernameFocused && styles.inputContainerFocused,
-            ]}
-          >
-            <Ionicons
-              name='person-outline'
-              size={20}
-              color='#666'
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder='Username'
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize='none'
-              onFocus={() => setIsUsernameFocused(true)}
-              onBlur={() => setIsUsernameFocused(false)}
-            />
-          </View>
-
-          <View
-            style={[
-              styles.inputContainer,
-              isPasswordFocused && styles.inputContainerFocused,
-            ]}
-          >
-            <Ionicons
-              name='lock-closed-outline'
-              size={20}
-              color='#666'
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder='Password'
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              onFocus={() => setIsPasswordFocused(true)}
-              onBlur={() => setIsPasswordFocused(false)}
-            />
-            <TouchableOpacity
-              onPress={togglePasswordVisibility}
-              style={styles.eyeIcon}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={20}
-                color='#666'
-              />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-            <Text style={styles.buttonText}>Sign In</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+        <Button
+          backgroundColor='#4285F4'
+          borderRadius={10}
+          height={55}
+          justifyContent='center'
+          alignItems='center'
+          marginTop={15}
+          onPress={handleSignIn}
+        >
+          <Text color='#fff' fontSize={16} fontWeight='bold'>
+            Sign In
+          </Text>
+        </Button>
+      </YStack>
+    </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 40,
-  },
-  logo: {
-    width: 70,
-    height: 70,
-  },
-  appName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color: '#333',
-  },
-  formContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 30,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    height: 55,
-    marginBottom: 15,
-  },
-  inputContainerFocused: {
-    borderColor: '#4285F4',
-    borderWidth: 1.5,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: '100%',
-    fontSize: 16,
-  },
-  eyeIcon: {
-    padding: 5,
-  },
-  button: {
-    backgroundColor: '#4285F4',
-    borderRadius: 10,
-    height: 55,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-})
