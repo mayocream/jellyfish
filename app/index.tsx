@@ -143,7 +143,7 @@ export default function Index() {
     : 'Jellyfin Server'
 
   return (
-    <View flex={1} backgroundClip='$black3'>
+    <View flex={1} backgroundColor='$black3'>
       {/* Static Header Bar */}
       <View
         height={60}
