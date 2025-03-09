@@ -3,12 +3,8 @@ import { LogOut, Server } from '@tamagui/lucide-icons'
 import {
   Button,
   Card,
-  H2,
   Paragraph,
-  Separator,
-  Stack,
   Text,
-  Theme,
   XStack,
   YStack,
 } from 'tamagui'
@@ -18,9 +14,8 @@ export default function Settings() {
   const session = useSessionStore()
   const server = session.server
 
-  const handleSignOut = () => {
-    // Add sign out logic here
-    console.log('Signing out...')
+  const handleSignOut = async () => {
+    await session.logout()
   }
 
   return (
