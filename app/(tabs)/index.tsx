@@ -1,6 +1,10 @@
 import { useSessionStore } from '@/lib/state'
-import { Redirect } from 'expo-router'
-import { getItemsApi, getTvShowsApi } from '@jellyfin/sdk/lib/utils/api'
+import { Redirect, router } from 'expo-router'
+import {
+  getItemsApi,
+  getTvShowsApi,
+  getVideosApi,
+} from '@jellyfin/sdk/lib/utils/api'
 import { useState, useEffect } from 'react'
 import { useWindowDimensions } from 'react-native'
 import { View, YStack, ScrollView } from 'tamagui'
@@ -56,54 +60,57 @@ export default function Index(): JSX.Element {
   // Load data
   useEffect(() => {
     async function loadData(): Promise<void> {
-      try {
-        const itemsApi = getItemsApi(api)
-        const tvShowsApi = getTvShowsApi(api)
+      const itemsApi = getItemsApi(api)
+      const tvShowsApi = getTvShowsApi(api)
 
-        // Load both data sources in parallel
-        const [resumeItems, nextUpItems] = await Promise.all([
-          itemsApi.getResumeItems({
-            limit: 12,
-            enableImageTypes: ['Primary', 'Backdrop', 'Thumb'],
-            imageTypeLimit: 1,
-            enableTotalRecordCount: false,
-            mediaTypes: ['Video'],
-          }),
-          tvShowsApi.getNextUp({
-            limit: 24,
-            enableImageTypes: ['Primary', 'Backdrop', 'Banner', 'Thumb'],
-            imageTypeLimit: 1,
-            enableTotalRecordCount: false,
-            disableFirstEpisode: false,
-          }),
-        ])
+      // Load both data sources in parallel
+      const [resumeItems, nextUpItems] = await Promise.all([
+        itemsApi.getResumeItems({
+          limit: 12,
+          enableImageTypes: ['Primary', 'Backdrop', 'Thumb'],
+          imageTypeLimit: 1,
+          enableTotalRecordCount: false,
+          mediaTypes: ['Video'],
+        }),
+        tvShowsApi.getNextUp({
+          limit: 24,
+          enableImageTypes: ['Primary', 'Backdrop', 'Banner', 'Thumb'],
+          imageTypeLimit: 1,
+          enableTotalRecordCount: false,
+          disableFirstEpisode: false,
+        }),
+      ])
 
-        const resumeResults = createCards(resumeItems.data.Items || [])
-        const nextUpResults = createCards(nextUpItems.data.Items || [])
+      const resumeResults = createCards(resumeItems.data.Items || [])
+      const nextUpResults = createCards(nextUpItems.data.Items || [])
 
-        // Set all state at once
-        setMediaContent({
-          resumeCards: resumeResults,
-          nextUpCards: nextUpResults,
-          featuredContent:
-            resumeResults.length > 0
-              ? resumeResults[0]
-              : nextUpResults.length > 0
-                ? nextUpResults[0]
-                : null,
-        })
-      } catch (error) {
-        console.error('Error loading data:', error)
-      }
+      // Set all state at once
+      setMediaContent({
+        resumeCards: resumeResults,
+        nextUpCards: nextUpResults,
+        featuredContent:
+          resumeResults.length > 0
+            ? resumeResults[0]
+            : nextUpResults.length > 0
+              ? nextUpResults[0]
+              : null,
+      })
     }
 
     loadData()
   }, [])
 
   // Event handlers
-  const handleCardPress = (card: CardItem): void => {
+  const handleCardPress = async (card: CardItem) => {
     console.log('Playing:', card.id)
-    // Navigate to player
+    const videosApi = getVideosApi(api)
+    const stream = videosApi.getVideoStream({
+      itemId: card.id,
+    })
+
+    console.log('stream:', stream)
+
+    router.push(`/player?source=${card.id}`)
   }
 
   const { resumeCards, nextUpCards, featuredContent } = mediaContent
