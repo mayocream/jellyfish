@@ -2,15 +2,16 @@ import { useSessionStore } from '@/lib/state'
 import { Redirect, router } from 'expo-router'
 import {
   getItemsApi,
+  getSuggestionsApi,
   getTvShowsApi,
   getVideosApi,
 } from '@jellyfin/sdk/lib/utils/api'
 import { useState, useEffect } from 'react'
 import { useWindowDimensions } from 'react-native'
 import { View, YStack, ScrollView } from 'tamagui'
-import { BaseItemDto } from '@jellyfin/sdk/lib/generated-client/models'
+import { BaseItemDto, ImageType } from '@jellyfin/sdk/lib/generated-client/models'
 import { CardItem, HorizontalCards } from '@/components/horizontal-cards'
-import { FeaturedBanner } from '@/components/featured-content'
+import { FeaturedContent } from '@/components/featured-content'
 
 export default function Index(): JSX.Element {
   const session = useSessionStore()
@@ -22,28 +23,30 @@ export default function Index(): JSX.Element {
   const [mediaContent, setMediaContent] = useState<{
     resumeCards: CardItem[]
     nextUpCards: CardItem[]
-    featuredContent: CardItem | null
+    featuredContent: CardItem[]
   }>({
     resumeCards: [],
     nextUpCards: [],
-    featuredContent: null,
+    featuredContent: [],
   })
 
   // Dimensions
   const { width, height } = useWindowDimensions()
   const isLandscape = width > height
   const cardWidth = width * (isLandscape ? 0.22 : 0.42)
-  const featuredHeight = isLandscape ? height * 0.75 : height * 0.6
+  const featuredHeight = isLandscape ? height * 0.75 : height * 0.4
 
   // Convert API items to card format
-  function createCards(items: BaseItemDto[]): CardItem[] {
+  function createCards(items: BaseItemDto[], imageType: ImageType = "Thumb"): CardItem[] {
     return items.map((item) => {
       const isEpisode = item.Type === 'Episode'
-      const imageUrl = `${session.server}/Items/${isEpisode ? item.SeriesId : item.Id}/Images/Thumb?fillHeight=512&fillWidth=910&tag=${item.ImageTags?.Primary}`
+      const imageUrl = `${session.server}/Items/${isEpisode ? item.SeriesId : item.Id}/Images/${imageType}?fillHeight=512&fillWidth=910&tag=${item.ImageTags?.Primary}`
+      const logoURL = item.ImageTags?.Logo && `${session.server}/Items/${item.Id}/Images/Logo?maxHeight=512&maxWidth=512&tag=${item.ImageTags?.Logo}`
 
       return {
         id: item.Id!,
         imageUrl,
+        logoURL,
         title: isEpisode ? item.SeriesName! : item.Name!,
         subtitle: isEpisode
           ? `S${item.ParentIndexNumber}:E${item.IndexNumber} - ${item.Name}`
@@ -62,9 +65,10 @@ export default function Index(): JSX.Element {
     async function loadData(): Promise<void> {
       const itemsApi = getItemsApi(api)
       const tvShowsApi = getTvShowsApi(api)
+      const suggestionApi = getSuggestionsApi(api)
 
       // Load both data sources in parallel
-      const [resumeItems, nextUpItems] = await Promise.all([
+      const [resumeItems, nextUpItems, featuredItems] = await Promise.all([
         itemsApi.getResumeItems({
           limit: 12,
           enableImageTypes: ['Primary', 'Backdrop', 'Thumb'],
@@ -79,21 +83,24 @@ export default function Index(): JSX.Element {
           enableTotalRecordCount: false,
           disableFirstEpisode: false,
         }),
+        suggestionApi.getSuggestions({
+          //userId: session.user?.Id!,
+          limit: 100,
+          mediaType: ['Video'],
+          type: ['Movie', 'TvProgram'],
+        })
       ])
 
       const resumeResults = createCards(resumeItems.data.Items || [])
       const nextUpResults = createCards(nextUpItems.data.Items || [])
+      const featureResults = createCards(featuredItems.data.Items || [], 'Backdrop')
+      console.log(featureResults)
 
       // Set all state at once
       setMediaContent({
         resumeCards: resumeResults,
         nextUpCards: nextUpResults,
-        featuredContent:
-          resumeResults.length > 0
-            ? resumeResults[0]
-            : nextUpResults.length > 0
-              ? nextUpResults[0]
-              : null,
+        featuredContent: featureResults
       })
     }
 
@@ -119,12 +126,10 @@ export default function Index(): JSX.Element {
     <YStack flex={1} backgroundColor='$black1'>
       <ScrollView showsVerticalScrollIndicator={false}>
         <YStack gap={24}>
-          <FeaturedBanner
+          <FeaturedContent
             content={featuredContent}
             height={featuredHeight}
-            onPlayPress={() =>
-              featuredContent && handleCardPress(featuredContent)
-            }
+            onPlayPress={handleCardPress}
           />
 
           <HorizontalCards

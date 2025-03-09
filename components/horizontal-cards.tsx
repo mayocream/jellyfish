@@ -4,6 +4,7 @@ import { TouchableOpacity } from 'react-native'
 export interface CardItem {
   id: string
   imageUrl: string
+  logoURL?: string
   title: string
   subtitle?: string
   rating?: number
