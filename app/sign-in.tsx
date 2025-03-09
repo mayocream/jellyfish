@@ -3,7 +3,7 @@ import { Alert } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import { useSessionStore } from '@/lib/context'
+import { useSessionStore } from '@/lib/state'
 import { YStack, XStack, Text, Input, Button, Image, View } from 'tamagui'
 
 export default function SignInScreen() {
